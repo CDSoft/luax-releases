@@ -164,16 +164,18 @@ archive()
 
 all archive
 
-cat <<EOF > "$RELEASE/README.md"
+cat <<EOF | pandoc --to gfm > "$RELEASE/README.md"
 # LuaX and friends binary release - $DATE
 
-- [LuaX $LUAX_VERSION](https://github.com/CDSoft/luax/releases/tag/$LUAX_VERSION)
-- [bang $BANG_VERSION](https://github.com/CDSoft/bang/releases/tag/$BANG_VERSION)
-- [ypp $YPP_VERSION](https://github.com/CDSoft/ypp/releases/tag/$YPP_VERSION)
-- [panda $PANDA_VERSION](https://github.com/CDSoft/panda/releases/tag/$PANDA_VERSION)
-- [lsvg $LSVG_VERSION](https://github.com/CDSoft/lsvg/releases/tag/$LSVG_VERSION)
-- [icd $ICD_VERSION](https://github.com/CDSoft/icd/releases/tag/$ICD_VERSION)
-- [tagref $TAGREF_VERSION](https://github.com/CDSoft/tagref/releases/tag/$TAGREF_VERSION)
-- [calculadoira $CALCULADOIRA_VERSION](https://github.com/CDSoft/calculadoira/releases/tag/$CALCULADOIRA_VERSION)
+| Project       | Version                                                                                               | Sources                                                       |
+| ------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| LuaX          | [$LUAX_VERSION](https://github.com/CDSoft/luax/releases/tag/$LUAX_VERSION)                            | [CDSoft/luax](https://github.com/CDSoft/luax)                 |
+| bang          | [$BANG_VERSION](https://github.com/CDSoft/bang/releases/tag/$BANG_VERSION)                            | [CDSoft/bang](https://github.com/CDSoft/bang)                 |
+| ypp           | [$YPP_VERSION](https://github.com/CDSoft/ypp/releases/tag/$YPP_VERSION)                               | [CDSoft/ypp](https://github.com/CDSoft/ypp)                   |
+| panda         | [$PANDA_VERSION](https://github.com/CDSoft/panda/releases/tag/$PANDA_VERSION)                         | [CDSoft/panda](https://github.com/CDSoft/panda)               |
+| lsvg          | [$LSVG_VERSION](https://github.com/CDSoft/lsvg/releases/tag/$LSVG_VERSION)                            | [CDSoft/lsvg](https://github.com/CDSoft/lsvg)                 |
+| icd           | [$ICD_VERSION](https://github.com/CDSoft/icd/releases/tag/$ICD_VERSION)                               | [CDSoft/icd](https://github.com/CDSoft/icd)                   |
+| tagref        | [$TAGREF_VERSION](https://github.com/CDSoft/tagref/releases/tag/$TAGREF_VERSION)                      | [CDSoft/tagref](https://github.com/CDSoft/tagref)             |
+| calculadoira  | [$CALCULADOIRA_VERSION](https://github.com/CDSoft/calculadoira/releases/tag/$CALCULADOIRA_VERSION)    | [CDSoft/calculadoira](https://github.com/CDSoft/calculadoira) |
 
 EOF
