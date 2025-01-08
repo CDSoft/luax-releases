@@ -1,0 +1,179 @@
+#!/bin/bash
+
+set -eu
+
+export PREFIX=$PWD/local
+DATE=$(date +%Y_%m_%d)
+RELEASE=$PWD/luax-release/$DATE
+
+TARGETS=(
+    lua
+    linux-x86_64
+    linux-x86_64-musl
+    linux-aarch64
+    linux-aarch64-musl
+    macos-x86_64
+    macos-aarch64
+    windows-x86_64
+)
+
+all()
+{
+    for target in "${TARGETS[@]}"
+    do
+        "$@" "$target"
+    done
+}
+
+gitclone()
+{
+    local URL="$1"
+    local DEST="${2:-$(basename "$URL")}"
+    if [ -d "$DEST" ]
+    then
+        ( cd "$DEST" && git pull )
+    else
+        git clone "$URL" "$DEST"
+    fi
+}
+
+#####################################################################
+# LuaX cross-compiler to build other LuaX softwares
+#####################################################################
+
+mkdir -p "$PREFIX"
+
+gitclone https://github.com/cdsoft/luax luax-cross
+( cd luax-cross && ./bootstrap.sh cross && ninja compile && ninja install)
+eval "$("$PREFIX"/bin/luax env)"
+
+#####################################################################
+# LuaX release
+#####################################################################
+
+gitclone https://github.com/cdsoft/luax
+( cd luax && ./bootstrap.sh release)
+
+LUAX_VERSION=$(cd luax && git describe --tags)
+
+add()
+{
+    local NAME="$1"
+    local VERSION="$2"
+    local ARCH="$3"
+    mkdir -p  "$RELEASE/luax-$DATE-$ARCH"
+    tar xaf "$NAME/.build/release/$VERSION/$NAME-$VERSION-$ARCH.tar.gz" -C "$RELEASE/luax-$DATE-$ARCH" --strip-components=1
+}
+
+all add luax "$LUAX_VERSION"
+
+#####################################################################
+# bang release
+#####################################################################
+
+gitclone https://github.com/cdsoft/bang
+( cd bang && ./boot.lua && ninja release && ninja install)
+
+BANG_VERSION=$(cd bang && git describe --tags)
+
+all add bang "$BANG_VERSION"
+
+#####################################################################
+# ypp release
+#####################################################################
+
+gitclone https://github.com/cdsoft/ypp
+( cd ypp && bang && ninja release && ninja install)
+
+YPP_VERSION=$(cd ypp && git describe --tags)
+
+all add ypp "$YPP_VERSION"
+
+#####################################################################
+# panda release
+#####################################################################
+
+gitclone https://github.com/cdsoft/panda
+( cd panda && bang && ninja release && ninja install)
+
+add_panda()
+{
+    local NAME="$1"
+    local VERSION="$2"
+    local ARCH="$3"
+    tar xaf "$NAME/.build/release/$VERSION/$NAME-$VERSION.tar.gz" -C "$RELEASE/luax-$DATE-$ARCH" --strip-components=1
+}
+
+PANDA_VERSION=$(cd panda && git describe --tags)
+
+all add_panda panda "$PANDA_VERSION"
+
+#####################################################################
+# lsvg release
+#####################################################################
+
+gitclone https://github.com/cdsoft/lsvg
+( cd lsvg && bang && ninja release && ninja install)
+
+LSVG_VERSION=$(cd lsvg && git describe --tags)
+
+all add lsvg "$LSVG_VERSION"
+
+#####################################################################
+# ICD release
+#####################################################################
+
+gitclone https://github.com/cdsoft/icd
+( cd icd && bang && ninja release && ninja install)
+
+ICD_VERSION=$(cd icd && git describe --tags)
+
+all add icd "$ICD_VERSION"
+
+#####################################################################
+# tagref release
+#####################################################################
+
+gitclone https://github.com/cdsoft/tagref
+( cd tagref && bang && ninja release && ninja install)
+
+TAGREF_VERSION=$(cd tagref && git describe --tags)
+
+all add tagref "$TAGREF_VERSION"
+
+#####################################################################
+# calculadoira release
+#####################################################################
+
+gitclone https://github.com/cdsoft/calculadoira
+( cd calculadoira && bang && ninja release && ninja install)
+
+CALCULADOIRA_VERSION=$(cd calculadoira && git describe --tags)
+
+all add calculadoira "$CALCULADOIRA_VERSION"
+
+#####################################################################
+# Archives
+#####################################################################
+
+archive()
+{
+    local ARCH="$1"
+    GZIP_OPT=-6 tar -caf "$RELEASE/luax-$DATE-$ARCH.tar.gz" -C "$RELEASE" "luax-$DATE-$ARCH"
+}
+
+all archive
+
+cat <<EOF > "$RELEASE/README.md"
+# LuaX and friends binary release - $DATE
+
+- [LuaX $LUAX_VERSION](https://github.com/CDSoft/luax/releases/tag/$LUAX_VERSION)
+- [bang $BANG_VERSION](https://github.com/CDSoft/bang/releases/tag/$BANG_VERSION)
+- [ypp $YPP_VERSION](https://github.com/CDSoft/ypp/releases/tag/$YPP_VERSION)
+- [panda $PANDA_VERSION](https://github.com/CDSoft/panda/releases/tag/$PANDA_VERSION)
+- [lsvg $LSVG_VERSION](https://github.com/CDSoft/lsvg/releases/tag/$LSVG_VERSION)
+- [icd $ICD_VERSION](https://github.com/CDSoft/icd/releases/tag/$ICD_VERSION)
+- [tagref $TAGREF_VERSION](https://github.com/CDSoft/tagref/releases/tag/$TAGREF_VERSION)
+- [calculadoira $CALCULADOIRA_VERSION](https://github.com/CDSoft/calculadoira/releases/tag/$CALCULADOIRA_VERSION)
+
+EOF
