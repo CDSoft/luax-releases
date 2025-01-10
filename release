@@ -159,7 +159,7 @@ all add calculadoira "$CALCULADOIRA_VERSION"
 archive()
 {
     local ARCH="$1"
-    GZIP_OPT=-6 tar -caf "$RELEASE/luax-$DATE-$ARCH.tar.gz" -C "$RELEASE" "luax-$DATE-$ARCH"
+    tar -caf "$RELEASE/luax-$DATE-$ARCH.tar.gz" -C "$RELEASE" "luax-$DATE-$ARCH"
 }
 
 all archive
