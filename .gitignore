@@ -1,6 +1,7 @@
 local
 luax
 luax-cross
+luax-cross-ssl
 luax-release
 bang
 ypp

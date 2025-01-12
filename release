@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# This file is part of luax-releases.
+#
+# luax-releases is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# luax-releases is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with luax-releases.  If not, see <https://www.gnu.org/licenses/>.
+#
+# For further information about luax-releases you can visit
+# https://github.com/CDSoft/luax-releases
+
 set -eu
 
 export PREFIX=$PWD/local
@@ -38,21 +56,33 @@ gitclone()
 }
 
 #####################################################################
-# LuaX cross-compiler to build other LuaX softwares
+# LuaX cross-compilers to build other LuaX softwares
 #####################################################################
 
 mkdir -p "$PREFIX"
 
 gitclone https://github.com/cdsoft/luax luax-cross
-( cd luax-cross && ./bootstrap.sh cross && ninja compile && ninja install)
-eval "$("$PREFIX"/bin/luax env)"
+( cd luax-cross && ./bootstrap.sh cross nossl small && ninja compile && ninja install)
+
+luax-cross-env()
+{
+    eval "$(luax-cross/.build/bin/luax env)"
+}
+
+gitclone https://github.com/cdsoft/luax luax-cross-ssl
+( cd luax-cross-ssl && ./bootstrap.sh cross ssl small && ninja compile)
+
+luax-cross-ssl-env()
+{
+    eval "$(luax-cross-ssl/.build/bin/luax env)"
+}
 
 #####################################################################
 # LuaX release
 #####################################################################
 
 gitclone https://github.com/cdsoft/luax
-( cd luax && ./bootstrap.sh release)
+( cd luax && ./bootstrap.sh release fast ssl)
 
 LUAX_VERSION=$(cd luax && git describe --tags)
 
@@ -72,6 +102,7 @@ all add luax "$LUAX_VERSION"
 #####################################################################
 
 gitclone https://github.com/cdsoft/bang
+luax-cross-ssl-env
 ( cd bang && ./boot.lua && ninja release && ninja install)
 
 BANG_VERSION=$(cd bang && git describe --tags)
@@ -83,6 +114,7 @@ all add bang "$BANG_VERSION"
 #####################################################################
 
 gitclone https://github.com/cdsoft/ypp
+luax-cross-ssl-env
 ( cd ypp && bang && ninja release && ninja install)
 
 YPP_VERSION=$(cd ypp && git describe --tags)
@@ -94,6 +126,7 @@ all add ypp "$YPP_VERSION"
 #####################################################################
 
 gitclone https://github.com/cdsoft/panda
+luax-cross-env
 ( cd panda && bang && ninja release && ninja install)
 
 add_panda()
@@ -113,6 +146,7 @@ all add_panda panda "$PANDA_VERSION"
 #####################################################################
 
 gitclone https://github.com/cdsoft/lsvg
+luax-cross-ssl-env
 ( cd lsvg && bang && ninja release && ninja install)
 
 LSVG_VERSION=$(cd lsvg && git describe --tags)
@@ -124,6 +158,7 @@ all add lsvg "$LSVG_VERSION"
 #####################################################################
 
 gitclone https://github.com/cdsoft/icd
+luax-cross-env
 ( cd icd && bang && ninja release && ninja install)
 
 ICD_VERSION=$(cd icd && git describe --tags)
@@ -135,6 +170,7 @@ all add icd "$ICD_VERSION"
 #####################################################################
 
 gitclone https://github.com/cdsoft/tagref
+luax-cross-env
 ( cd tagref && bang && ninja release && ninja install)
 
 TAGREF_VERSION=$(cd tagref && git describe --tags)
@@ -146,6 +182,7 @@ all add tagref "$TAGREF_VERSION"
 #####################################################################
 
 gitclone https://github.com/cdsoft/calculadoira
+luax-cross-env
 ( cd calculadoira && bang && ninja release && ninja install)
 
 CALCULADOIRA_VERSION=$(cd calculadoira && git describe --tags)
@@ -177,5 +214,4 @@ cat <<EOF | pandoc --to gfm > "$RELEASE/README.md"
 | icd           | [$ICD_VERSION](https://github.com/CDSoft/icd/releases/tag/$ICD_VERSION)                               | [CDSoft/icd](https://github.com/CDSoft/icd)                   |
 | tagref        | [$TAGREF_VERSION](https://github.com/CDSoft/tagref/releases/tag/$TAGREF_VERSION)                      | [CDSoft/tagref](https://github.com/CDSoft/tagref)             |
 | calculadoira  | [$CALCULADOIRA_VERSION](https://github.com/CDSoft/calculadoira/releases/tag/$CALCULADOIRA_VERSION)    | [CDSoft/calculadoira](https://github.com/CDSoft/calculadoira) |
-
 EOF
