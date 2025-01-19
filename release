@@ -21,7 +21,7 @@
 set -eu
 
 export PREFIX=$PWD/local
-DATE=$(date +%Y_%m_%d)
+DATE=$(date +%Y-%m-%d)
 RELEASE=$PWD/luax-release/$DATE
 
 TARGETS=(
