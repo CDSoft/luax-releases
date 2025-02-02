@@ -92,7 +92,7 @@ add()
     local VERSION="$2"
     local ARCH="$3"
     mkdir -p  "$RELEASE/luax-$DATE-$ARCH"
-    tar xaf "$NAME/.build/release/$VERSION/$NAME-$VERSION-$ARCH.tar.gz" -C "$RELEASE/luax-$DATE-$ARCH" --strip-components=1
+    tar xaf "$NAME/.build/release/$VERSION/$NAME-$VERSION-$ARCH.tar.gz" -C "$RELEASE/luax-$DATE-$ARCH" --strip-components=1 --sort=name
 }
 
 all add luax "$LUAX_VERSION"
@@ -134,7 +134,7 @@ add_panda()
     local NAME="$1"
     local VERSION="$2"
     local ARCH="$3"
-    tar xaf "$NAME/.build/release/$VERSION/$NAME-$VERSION.tar.gz" -C "$RELEASE/luax-$DATE-$ARCH" --strip-components=1
+    tar xaf "$NAME/.build/release/$VERSION/$NAME-$VERSION.tar.gz" -C "$RELEASE/luax-$DATE-$ARCH" --strip-components=1 --sort=name
 }
 
 PANDA_VERSION=$(cd panda && git describe --tags)
@@ -196,7 +196,7 @@ all add calculadoira "$CALCULADOIRA_VERSION"
 archive()
 {
     local ARCH="$1"
-    tar -caf "$RELEASE/luax-$DATE-$ARCH.tar.xz" -C "$RELEASE" "luax-$DATE-$ARCH"
+    tar -caf "$RELEASE/luax-$DATE-$ARCH.tar.xz" -C "$RELEASE" "luax-$DATE-$ARCH" --sort=name
 }
 
 all archive
