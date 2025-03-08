@@ -43,6 +43,15 @@ all()
     done
 }
 
+all_parallel()
+{
+    for target in "${TARGETS[@]}"
+    do
+        "$@" "$target" &
+    done
+    wait
+}
+
 gitclone()
 {
     local URL="$1"
@@ -69,13 +78,13 @@ luax-cross-env()
     eval "$(luax-cross/.build/bin/luax env)"
 }
 
-gitclone https://github.com/cdsoft/luax luax-cross-ssl
-( cd luax-cross-ssl && ./bootstrap.sh cross ssl small && ninja compile )
-
-luax-cross-ssl-env()
-{
-    eval "$(luax-cross-ssl/.build/bin/luax env)"
-}
+#gitclone https://github.com/cdsoft/luax luax-cross-ssl
+#( cd luax-cross-ssl && ./bootstrap.sh cross ssl small && ninja compile )
+#
+#luax-cross-ssl-env()
+#{
+#    eval "$(luax-cross-ssl/.build/bin/luax env)"
+#}
 
 #####################################################################
 # LuaX release
@@ -95,14 +104,14 @@ add()
     tar xaf "$NAME/.build/release/$VERSION/$NAME-$VERSION-$ARCH.tar.gz" -C "$RELEASE/luax-$DATE-$ARCH" --strip-components=1 --sort=name
 }
 
-all add luax "$LUAX_VERSION"
+all_parallel add luax "$LUAX_VERSION"
 
 #####################################################################
 # bang release
 #####################################################################
 
 gitclone https://github.com/cdsoft/bang
-luax-cross-ssl-env
+luax-cross-env
 ( cd bang && ./boot.lua && ninja release && ninja install )
 
 BANG_VERSION=$(cd bang && git describe --tags)
@@ -114,7 +123,7 @@ all add bang "$BANG_VERSION"
 #####################################################################
 
 gitclone https://github.com/cdsoft/ypp
-luax-cross-ssl-env
+luax-cross-env
 ( cd ypp && bang && ninja release && ninja install )
 
 YPP_VERSION=$(cd ypp && git describe --tags)
@@ -146,7 +155,7 @@ all add_panda panda "$PANDA_VERSION"
 #####################################################################
 
 gitclone https://github.com/cdsoft/lsvg
-luax-cross-ssl-env
+luax-cross-env
 ( cd lsvg && bang && ninja release && ninja install )
 
 LSVG_VERSION=$(cd lsvg && git describe --tags)
@@ -196,10 +205,11 @@ all add calculadoira "$CALCULADOIRA_VERSION"
 archive()
 {
     local ARCH="$1"
+    echo "Create $RELEASE/luax-$DATE-$ARCH.tar.xz"
     tar -caf "$RELEASE/luax-$DATE-$ARCH.tar.xz" -C "$RELEASE" "luax-$DATE-$ARCH" --sort=name
 }
 
-all archive
+all_parallel archive
 
 cat <<EOF | pandoc --to gfm > "$RELEASE/README.md"
 # LuaX and friends binary release - $DATE
