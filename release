@@ -64,27 +64,7 @@ gitclone()
     fi
 }
 
-#####################################################################
-# LuaX cross-compilers to build other LuaX softwares
-#####################################################################
-
 mkdir -p "$PREFIX"
-
-gitclone https://github.com/cdsoft/luax luax-cross
-( cd luax-cross && ./bootstrap.sh cross nossl small && ninja compile && ninja install )
-
-luax-cross-env()
-{
-    eval "$(luax-cross/.build/bin/luax env)"
-}
-
-#gitclone https://github.com/cdsoft/luax luax-cross-ssl
-#( cd luax-cross-ssl && ./bootstrap.sh cross ssl small && ninja compile )
-#
-#luax-cross-ssl-env()
-#{
-#    eval "$(luax-cross-ssl/.build/bin/luax env)"
-#}
 
 #####################################################################
 # LuaX release
@@ -105,6 +85,22 @@ add()
 }
 
 all_parallel add luax "$LUAX_VERSION"
+
+# LuaX cross-compilers to build other LuaX softwares
+
+( cd luax && ./bootstrap.sh cross nossl small -b .build/cross -o .build/cross/build.ninja && ninja -f .build/cross/build.ninja install )
+
+luax-cross-env()
+{
+    eval "$(luax/.build/cross/bin/luax env)"
+}
+
+#( cd luax && ./bootstrap.sh cross ssl small -b .build/cross-ssl -o .build/cross-ssl/build.ninja )
+#
+#luax-cross-ssl-env()
+#{
+#    eval "$(luax-cross/.build/cross-ssl/bin/luax env)"
+#}
 
 #####################################################################
 # bang release
