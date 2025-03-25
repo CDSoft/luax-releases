@@ -36,3 +36,25 @@ These prices are per month and per tools (see [`PRICING`](PRICING)).
 <a href='https://github.com/sponsors/CDSoft' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86' border='0' alt='Donate using Github' /></a>
 
 Feel free to promote LuaX!
+
+# Download
+
+[`get-luax.sh`](get-luax.sh) detects your platform (Linux and MacOS only) and installs the appropriate LuaX archive.
+
+The environment variable `PREFIX` points to the installation path (defaults to `~/.local`).
+The `musl` C library can be chosen with the `LIBC` variable.
+
+E.g.:
+
+``` sh
+$ EXPORT PREFIX=/custom/install/path
+$ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/master/get-luax.sh | sh
+```
+
+or if you need binaries compiled with `musl`:
+
+``` sh
+$ EXPORT PREFIX=/custom/install/path
+$ EXPORT LIBC=musl
+$ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/master/get-luax.sh | sh
+```
