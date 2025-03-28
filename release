@@ -80,6 +80,31 @@ download()
 mkdir -p "$PREFIX"
 
 #####################################################################
+# Ninja
+#####################################################################
+
+gitclone https://github.com/cdsoft/ninja-builder
+( cd ninja-builder && ./ninja-builder.sh zig install )
+
+NINJA_RELEASE=$(grep RELEASE ninja-builder/ninja-builder.sh | head -1 | sed 's/.*=//')
+NINJA_VERSION=$(grep NINJA_VERSION ninja-builder/ninja-builder.sh | head -1 | sed 's/.*=//')
+NINJA_ZIG_VERSION=$(grep ZIG_VERSION ninja-builder/ninja-builder.sh | head -1 | sed 's/.*=//')
+
+echo "NINJA_RELEASE = $NINJA_RELEASE"
+
+copy_ninja()
+{
+    local ARCH="$1"
+    test "$ARCH" = lua && return
+    local SRC=ninja-builder/.build/ninja-${NINJA_VERSION}-zig-${NINJA_ZIG_VERSION}/ninja-build-${NINJA_RELEASE}-${ARCH}
+    local DST=$RELEASE/luax-${DATE}-${ARCH}/bin
+    mkdir -p "$DST"
+    cp -v "$SRC/ninja"* "$DST/"
+}
+
+all copy_ninja
+
+#####################################################################
 # LuaX release
 #####################################################################
 
@@ -340,6 +365,7 @@ cat <<EOF | pandoc --to gfm > "$RELEASE/README.md"
 
 | Project       | Version                                                                                               | Documentation                                                 |
 | ------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Ninja         | [$NINJA_VERSION](https://github.com/ninja-build/ninja/releases/tag/v$NINJA_VERSION)                   | [ninja-build.org](https://ninja-build.org/)                   |
 | Pandoc        | [$PANDOC_VERSION](https://github.com/jgm/pandoc/releases/tag/$PANDOC_VERSION)                         | [pandoc.org](https://pandoc.org/)                             |
 | Typst         | [$TYPST_VERSION](https://github.com/typst/typst/releases/tag/v$TYPST_VERSION)                         | [typst.app](https://typst.app/)                               |
 | PlantUML      | [$PLANTUML_VERSION](https://github.com/plantuml/plantuml/releases/tag/v$PLANTUML_VERSION)             | [plantuml.com](https://plantuml.com)                          |
