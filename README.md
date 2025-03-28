@@ -65,6 +65,10 @@ $ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/mas
 
 This repository also releases binaries for some softwares that plays well with LuaX.
 
+### Ninja
+
+Since bang requires Ninja, it is included in the LuaX archives.
+
 ### Pandoc
 
 ``` sh
