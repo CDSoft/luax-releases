@@ -65,6 +65,18 @@ gitclone()
     fi
 }
 
+download()
+{
+    local DEST="$1"
+    local URL="$2"
+    local NAME
+    NAME="$DEST/$(basename "$URL")"
+    test -f "$NAME" && return
+    mkdir -p "$DEST"
+    echo "Download $NAME"
+    curl -sSLf "$URL" -o "$NAME"
+}
+
 mkdir -p "$PREFIX"
 
 #####################################################################
@@ -196,6 +208,73 @@ CALCULADOIRA_VERSION=$(cd calculadoira && git describe --tags)
 all add calculadoira "$CALCULADOIRA_VERSION"
 
 #####################################################################
+# Pandoc
+#####################################################################
+
+PANDOC_URL=https://github.com/jgm/pandoc/releases
+PANDOC_VERSION=$(basename "$(curl -Ls -o /dev/null -w "%{url_effective}" $PANDOC_URL/latest)")
+
+mkdir -p "$RELEASE/pandoc-$DATE"-{linux-x86_64,linux-aarch64,macos-x86_64,macos-aarch64,windows-x86_64}/bin
+
+download "pandoc/${PANDOC_VERSION}" "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz" &
+download "pandoc/${PANDOC_VERSION}" "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-arm64.tar.gz" &
+download "pandoc/${PANDOC_VERSION}" "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-x86_64-macOS.zip" &
+download "pandoc/${PANDOC_VERSION}" "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-arm64-macOS.zip" &
+download "pandoc/${PANDOC_VERSION}" "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-windows-x86_64.zip" &
+wait
+
+tar -xaf "pandoc/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz" -C "$RELEASE/pandoc-$DATE-linux-x86_64" --strip-components=1 --sort=name "*/bin/*" &
+tar -xaf "pandoc/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-arm64.tar.gz" -C "$RELEASE/pandoc-$DATE-linux-aarch64" --strip-components=1 --sort=name "*/bin/*" &
+unzip -jo "pandoc/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-x86_64-macOS.zip" "*/bin/*" -d "$RELEASE/pandoc-$DATE-macos-x86_64/bin" &
+unzip -jo "pandoc/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-arm64-macOS.zip" "*/bin/*" -d "$RELEASE/pandoc-$DATE-macos-aarch64/bin" &
+unzip -jo "pandoc/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-windows-x86_64.zip" "*/pandoc.exe" -d "$RELEASE/pandoc-$DATE-windows-x86_64/bin" &
+wait
+
+fd . "$RELEASE" -e exe -x chmod +x
+
+#####################################################################
+# Typst
+#####################################################################
+
+TYPST_URL=https://github.com/typst/typst/releases
+TYPST_VERSION=$(basename "$(curl -Ls -o /dev/null -w "%{url_effective}" $TYPST_URL/latest)")
+TYPST_VERSION=${TYPST_VERSION/v/}
+
+mkdir -p "$RELEASE/typst-$DATE"-{linux-x86_64,linux-aarch64,macos-x86_64,macos-aarch64,windows-x86_64,windows-aarch64}/bin
+
+download "typst/${TYPST_VERSION}" "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz" &
+download "typst/${TYPST_VERSION}" "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-aarch64-unknown-linux-musl.tar.xz" &
+download "typst/${TYPST_VERSION}" "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-apple-darwin.tar.xz" &
+download "typst/${TYPST_VERSION}" "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-aarch64-apple-darwin.tar.xz" &
+download "typst/${TYPST_VERSION}" "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-pc-windows-msvc.zip" &
+download "typst/${TYPST_VERSION}" "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-aarch64-pc-windows-msvc.zip" &
+wait
+
+tar -xaf "typst/${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz" -C "$RELEASE/typst-$DATE-linux-x86_64/bin" --strip-components=1 --sort=name "*/typst" &
+tar -xaf "typst/${TYPST_VERSION}/typst-aarch64-unknown-linux-musl.tar.xz" -C "$RELEASE/typst-$DATE-linux-aarch64/bin" --strip-components=1 --sort=name "*/typst" &
+tar -xaf "typst/${TYPST_VERSION}/typst-x86_64-apple-darwin.tar.xz" -C "$RELEASE/typst-$DATE-macos-x86_64/bin" --strip-components=1 --sort=name "*/typst" &
+tar -xaf "typst/${TYPST_VERSION}/typst-aarch64-apple-darwin.tar.xz" -C "$RELEASE/typst-$DATE-macos-aarch64/bin" --strip-components=1 --sort=name "*/typst" &
+unzip -jo "typst/${TYPST_VERSION}/typst-x86_64-pc-windows-msvc.zip" "*/typst.exe" -d "$RELEASE/typst-$DATE-windows-x86_64/bin" &
+unzip -jo "typst/${TYPST_VERSION}/typst-aarch64-pc-windows-msvc.zip" "*/typst.exe" -d "$RELEASE/typst-$DATE-windows-aarch64/bin" &
+wait
+
+fd . "$RELEASE" -e exe -x chmod +x
+
+#####################################################################
+# PlantUML
+#####################################################################
+
+PLANTUML_URL=https://github.com/plantuml/plantuml/releases
+PLANTUML_VERSION=$(basename "$(curl -Ls -o /dev/null -w "%{url_effective}" $PLANTUML_URL/latest)")
+PLANTUML_VERSION=${PLANTUML_VERSION/v/}
+
+mkdir -p "$RELEASE/plantuml-$DATE/bin"
+
+download "plantuml/${PLANTUML_VERSION}" "https://github.com/plantuml/plantuml/releases/download/v${PLANTUML_VERSION}/plantuml-${PLANTUML_VERSION}.jar"
+
+cp "plantuml/${PLANTUML_VERSION}/plantuml-${PLANTUML_VERSION}.jar" "$RELEASE/plantuml-$DATE/bin/plantuml.jar"
+
+#####################################################################
 # Archives
 #####################################################################
 
@@ -208,8 +287,43 @@ archive()
 
 all_parallel archive
 
+archive_third_party()
+{
+    local SOFT="$1"
+    local ARCH="$2"
+    echo "Create $RELEASE/$SOFT-$DATE-$ARCH.tar.xz"
+    tar -caf "$RELEASE/$SOFT-$DATE-$ARCH.tar.xz" -C "$RELEASE" "$SOFT-$DATE-$ARCH" --sort=name
+}
+
+archive_generic()
+{
+    local SOFT="$1"
+    echo "Create $RELEASE/$SOFT-$DATE.tar.xz"
+    tar -caf "$RELEASE/$SOFT-$DATE.tar.xz" -C "$RELEASE" "$SOFT-$DATE" --sort=name
+}
+
+archive_third_party pandoc linux-x86_64 &
+archive_third_party pandoc linux-aarch64 &
+archive_third_party pandoc macos-x86_64 &
+archive_third_party pandoc macos-aarch64 &
+archive_third_party pandoc windows-x86_64 &
+wait
+
+archive_third_party typst linux-x86_64 &
+archive_third_party typst linux-aarch64 &
+archive_third_party typst macos-x86_64 &
+archive_third_party typst macos-aarch64 &
+archive_third_party typst windows-x86_64 &
+archive_third_party typst windows-aarch64 &
+wait
+
+archive_generic plantuml &
+wait
+
 cat <<EOF | pandoc --to gfm > "$RELEASE/README.md"
 # LuaX and friends binary release - $DATE
+
+## LuaX and friends
 
 | Project       | Version                                                                                               | Sources                                                       |
 | ------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
@@ -221,4 +335,12 @@ cat <<EOF | pandoc --to gfm > "$RELEASE/README.md"
 | icd           | [$ICD_VERSION](https://github.com/CDSoft/icd/releases/tag/$ICD_VERSION)                               | [CDSoft/icd](https://github.com/CDSoft/icd)                   |
 | tagref        | [$TAGREF_VERSION](https://github.com/CDSoft/tagref/releases/tag/$TAGREF_VERSION)                      | [CDSoft/tagref](https://github.com/CDSoft/tagref)             |
 | calculadoira  | [$CALCULADOIRA_VERSION](https://github.com/CDSoft/calculadoira/releases/tag/$CALCULADOIRA_VERSION)    | [CDSoft/calculadoira](https://github.com/CDSoft/calculadoira) |
+
+## Third party softwares
+
+| Project       | Version                                                                                               | Documentation                                                 |
+| ------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Pandoc        | [$PANDOC_VERSION](https://github.com/jgm/pandoc/releases/tag/$PANDOC_VERSION)                         | [pandoc.org](https://pandoc.org/)                             |
+| Typst         | [$TYPST_VERSION](https://github.com/typst/typst/releases/tag/v$TYPST_VERSION)                         | [typst.app](https://typst.app/)                               |
+| PlantUML      | [$PLANTUML_VERSION](https://github.com/plantuml/plantuml/releases/tag/v$PLANTUML_VERSION)             | [plantuml.com](https://plantuml.com)                          |
 EOF

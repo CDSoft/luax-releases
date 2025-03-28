@@ -39,6 +39,8 @@ Feel free to promote LuaX!
 
 # Download
 
+## LuaX
+
 [`get-luax.sh`](get-luax.sh) detects your platform (Linux and MacOS only) and installs the appropriate LuaX archive.
 
 The environment variable `PREFIX` points to the installation path (defaults to `~/.local`).
@@ -47,14 +49,39 @@ The `musl` C library can be chosen with the `LIBC` variable.
 E.g.:
 
 ``` sh
-$ EXPORT PREFIX=/custom/install/path
+$ export PREFIX=/custom/install/path
 $ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/master/get-luax.sh | sh
 ```
 
 or if you need binaries compiled with `musl`:
 
 ``` sh
-$ EXPORT PREFIX=/custom/install/path
-$ EXPORT LIBC=musl
+$ export PREFIX=/custom/install/path
+$ export LIBC=musl
 $ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/master/get-luax.sh | sh
+```
+
+## Third party softwares
+
+This repository also releases binaries for some softwares that plays well with LuaX.
+
+### Pandoc
+
+``` sh
+$ export PREFIX=/custom/install/path
+$ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/master/get-pandoc.sh | sh
+```
+
+### Typst
+
+``` sh
+$ export PREFIX=/custom/install/path
+$ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/master/get-typst.sh | sh
+```
+
+### PlantUML
+
+``` sh
+$ export PREFIX=/custom/install/path
+$ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/master/get-plantuml.sh | sh
 ```
