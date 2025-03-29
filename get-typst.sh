@@ -22,6 +22,7 @@ set -eu
 
 export PREFIX=${PREFIX:-$HOME/.local}
 
+echo "Package : Typst"
 URL=$(curl -Ls -o /dev/null -w "%{url_effective}" https://github.com/CDSoft/luax-releases/releases/latest)
 VERSION=$(basename "$URL")
 echo "Release : $VERSION"
@@ -34,6 +35,6 @@ esac
 echo "Target  : $OS - $ARCH"
 ARCHIVE=https://github.com/CDSoft/luax-releases/releases/download/${VERSION}/typst-${VERSION}-${OS}-${ARCH}.tar.xz
 echo "Download: $ARCHIVE"
-
 echo
 curl -sSL "$ARCHIVE" | tar xJf - -v -C "$PREFIX" --strip-components 1
+echo
