@@ -63,7 +63,7 @@ $ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/mas
 
 ## Third party softwares
 
-This repository also releases binaries for some softwares that plays well with LuaX.
+This repository also releases binaries for some softwares that play well with LuaX.
 
 ### Ninja
 
