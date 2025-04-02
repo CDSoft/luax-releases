@@ -69,6 +69,20 @@ This repository also releases binaries for some softwares that play well with Lu
 
 Since bang requires Ninja, it is included in the LuaX archives.
 
+### Lzip
+
+``` sh
+$ export PREFIX=/custom/install/path
+$ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/master/get-lzip.sh | sh
+```
+
+### LZ4
+
+``` sh
+$ export PREFIX=/custom/install/path
+$ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/master/get-lz4.sh | sh
+```
+
 ### Pandoc
 
 ``` sh

@@ -15,3 +15,5 @@ typst
 plantuml
 ninja-builder
 ditaa
+lzip-builder
+lz4-builder
