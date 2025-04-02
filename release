@@ -90,8 +90,6 @@ NINJA_RELEASE=$(grep RELEASE ninja-builder/ninja-builder.sh | head -1 | sed 's/.
 NINJA_VERSION=$(grep NINJA_VERSION ninja-builder/ninja-builder.sh | head -1 | sed 's/.*=//')
 NINJA_ZIG_VERSION=$(grep ZIG_VERSION ninja-builder/ninja-builder.sh | head -1 | sed 's/.*=//')
 
-echo "NINJA_RELEASE = $NINJA_RELEASE"
-
 copy_ninja()
 {
     local ARCH="$1"
@@ -233,6 +231,50 @@ CALCULADOIRA_VERSION=$(cd calculadoira && git describe --tags)
 all add calculadoira "$CALCULADOIRA_VERSION"
 
 #####################################################################
+# lz4
+#####################################################################
+
+gitclone https://github.com/cdsoft/lz4-builder
+( cd lz4-builder && bang && ninja all install )
+
+LZ4_RELEASE=$(grep release lz4-builder/build.lua | head -1 | awk '{print $3}' | tr -d '"')
+LZ4_VERSION=$(grep lz4_version lz4-builder/build.lua | head -1 | awk '{print $3}' | tr -d '"')
+
+copy_lz4()
+{
+    local ARCH="$1"
+    test "$ARCH" = lua && return
+    local SRC=lz4-builder/.build/lz4-build-${LZ4_RELEASE}-${ARCH}.tar.gz
+    local DST=$RELEASE/lz4-${DATE}-${ARCH}/bin
+    mkdir -p "$DST"
+    tar xaf "$SRC" -C "$DST"
+}
+
+all copy_lz4
+
+#####################################################################
+# lzip
+#####################################################################
+
+gitclone https://github.com/cdsoft/lzip-builder
+( cd lzip-builder && bang && ninja all install )
+
+LZIP_RELEASE=$(grep release lzip-builder/build.lua | head -1 | awk '{print $3}' | tr -d '"')
+LZIP_VERSION=$(grep lzip_version lzip-builder/build.lua | head -1 | awk '{print $3}' | tr -d '"')
+
+copy_lzip()
+{
+    local ARCH="$1"
+    test "$ARCH" = lua && return
+    local SRC=lzip-builder/.build/lzip-build-${LZIP_RELEASE}-${ARCH}.tar.gz
+    local DST=$RELEASE/lzip-${DATE}-${ARCH}/bin
+    mkdir -p "$DST"
+    tar xaf "$SRC" -C "$DST"
+}
+
+all copy_lzip
+
+#####################################################################
 # Pandoc
 #####################################################################
 
@@ -340,6 +382,26 @@ archive_generic()
     tar -caf "$RELEASE/$SOFT-$DATE.tar.xz" -C "$RELEASE" "$SOFT-$DATE" --sort=name
 }
 
+archive_third_party lzip linux-x86_64 &
+archive_third_party lzip linux-x86_64-musl &
+archive_third_party lzip linux-aarch64 &
+archive_third_party lzip linux-aarch64-musl &
+archive_third_party lzip macos-x86_64 &
+archive_third_party lzip macos-aarch64 &
+archive_third_party lzip windows-x86_64 &
+archive_third_party lzip windows-aarch64 &
+wait
+
+archive_third_party lz4 linux-x86_64 &
+archive_third_party lz4 linux-x86_64-musl &
+archive_third_party lz4 linux-aarch64 &
+archive_third_party lz4 linux-aarch64-musl &
+archive_third_party lz4 macos-x86_64 &
+archive_third_party lz4 macos-aarch64 &
+archive_third_party lz4 windows-x86_64 &
+archive_third_party lz4 windows-aarch64 &
+wait
+
 archive_third_party pandoc linux-x86_64 &
 archive_third_party pandoc linux-aarch64 &
 archive_third_party pandoc macos-x86_64 &
@@ -379,9 +441,11 @@ cat <<EOF | pandoc --to gfm > "$RELEASE/README.md"
 
 | Project       | Version                                                                                               | Documentation                                                     |
 | ------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Ninja         | [$NINJA_VERSION](https://github.com/ninja-build/ninja/releases/tag/v$NINJA_VERSION)                   | [ninja-build.org](https://ninja-build.org/)                       |
-| Pandoc        | [$PANDOC_VERSION](https://github.com/jgm/pandoc/releases/tag/$PANDOC_VERSION)                         | [pandoc.org](https://pandoc.org/)                                 |
-| Typst         | [$TYPST_VERSION](https://github.com/typst/typst/releases/tag/v$TYPST_VERSION)                         | [typst.app](https://typst.app/)                                   |
+| Ninja         | [$NINJA_VERSION](https://github.com/ninja-build/ninja/releases/tag/v$NINJA_VERSION)                   | [ninja-build.org](https://ninja-build.org)                        |
+| Lzip          | [$LZIP_VERSION](https://download.savannah.gnu.org/releases/lzip)                                      | [lzip.nongnu.org](https://lzip.nongnu.org)                        |
+| LZ4           | [$LZ4_VERSION](https://github.com/lz4/lz4/releases/tag/v$LZ4_VERSION)                                 | [lz4.org](https://lz4.org)                                        |
+| Pandoc        | [$PANDOC_VERSION](https://github.com/jgm/pandoc/releases/tag/$PANDOC_VERSION)                         | [pandoc.org](https://pandoc.org)                                  |
+| Typst         | [$TYPST_VERSION](https://github.com/typst/typst/releases/tag/v$TYPST_VERSION)                         | [typst.app](https://typst.app)                                    |
 | PlantUML      | [$PLANTUML_VERSION](https://github.com/plantuml/plantuml/releases/tag/v$PLANTUML_VERSION)             | [plantuml.com](https://plantuml.com)                              |
 | ditaa         | [$DITAA_VERSION](https://github.com/stathissideris/ditaa/releases/tag/v$DITAA_VERSION)                | [stathissideris/ditaa](https://github.com/stathissideris/ditaa)   |
 EOF
