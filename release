@@ -300,6 +300,19 @@ download "plantuml/${PLANTUML_VERSION}" "https://github.com/plantuml/plantuml/re
 cp "plantuml/${PLANTUML_VERSION}/plantuml-${PLANTUML_VERSION}.jar" "$RELEASE/plantuml-$DATE/bin/plantuml.jar"
 
 #####################################################################
+# ditaa
+#####################################################################
+
+DITAA_URL=https://github.com/stathissideris/ditaa/releases
+DITAA_VERSION=$(basename "$(curl -Ls -o /dev/null -w "%{url_effective}" $DITAA_URL/latest)")
+DITAA_VERSION=${DITAA_VERSION/v/}
+
+mkdir -p "$RELEASE/ditaa-$DATE/bin"
+
+download "ditaa/${DITAA_VERSION}" "https://github.com/stathissideris/ditaa/releases/download/v${DITAA_VERSION}/ditaa-${DITAA_VERSION}-standalone.jar"
+cp "ditaa/${DITAA_VERSION}/ditaa-${DITAA_VERSION}-standalone.jar" "$RELEASE/ditaa-$DATE/bin/ditaa.jar"
+
+#####################################################################
 # Archives
 #####################################################################
 
@@ -343,6 +356,7 @@ archive_third_party typst windows-aarch64 &
 wait
 
 archive_generic plantuml &
+archive_generic ditaa &
 wait
 
 cat <<EOF | pandoc --to gfm > "$RELEASE/README.md"
@@ -363,10 +377,11 @@ cat <<EOF | pandoc --to gfm > "$RELEASE/README.md"
 
 ## Third party softwares
 
-| Project       | Version                                                                                               | Documentation                                                 |
-| ------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Ninja         | [$NINJA_VERSION](https://github.com/ninja-build/ninja/releases/tag/v$NINJA_VERSION)                   | [ninja-build.org](https://ninja-build.org/)                   |
-| Pandoc        | [$PANDOC_VERSION](https://github.com/jgm/pandoc/releases/tag/$PANDOC_VERSION)                         | [pandoc.org](https://pandoc.org/)                             |
-| Typst         | [$TYPST_VERSION](https://github.com/typst/typst/releases/tag/v$TYPST_VERSION)                         | [typst.app](https://typst.app/)                               |
-| PlantUML      | [$PLANTUML_VERSION](https://github.com/plantuml/plantuml/releases/tag/v$PLANTUML_VERSION)             | [plantuml.com](https://plantuml.com)                          |
+| Project       | Version                                                                                               | Documentation                                                     |
+| ------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Ninja         | [$NINJA_VERSION](https://github.com/ninja-build/ninja/releases/tag/v$NINJA_VERSION)                   | [ninja-build.org](https://ninja-build.org/)                       |
+| Pandoc        | [$PANDOC_VERSION](https://github.com/jgm/pandoc/releases/tag/$PANDOC_VERSION)                         | [pandoc.org](https://pandoc.org/)                                 |
+| Typst         | [$TYPST_VERSION](https://github.com/typst/typst/releases/tag/v$TYPST_VERSION)                         | [typst.app](https://typst.app/)                                   |
+| PlantUML      | [$PLANTUML_VERSION](https://github.com/plantuml/plantuml/releases/tag/v$PLANTUML_VERSION)             | [plantuml.com](https://plantuml.com)                              |
+| ditaa         | [$DITAA_VERSION](https://github.com/stathissideris/ditaa/releases/tag/v$DITAA_VERSION)                | [stathissideris/ditaa](https://github.com/stathissideris/ditaa)   |
 EOF

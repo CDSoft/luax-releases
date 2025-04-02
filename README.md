@@ -89,3 +89,10 @@ $ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/mas
 $ export PREFIX=/custom/install/path
 $ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/master/get-plantuml.sh | sh
 ```
+
+### ditaa
+
+``` sh
+$ export PREFIX=/custom/install/path
+$ curl -sS https://raw.githubusercontent.com/CDSoft/luax-releases/refs/heads/master/get-ditaa.sh | sh
+```
