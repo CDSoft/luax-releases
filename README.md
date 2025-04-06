@@ -1,5 +1,11 @@
 # LuaX release builder
 
+> [!Caution]
+> Since LuaX is being migrated to [Codeberg](https://codeberg.org/cdsoft),
+> this repository won't be upgraded anymore.
+> Codeberg does not support binary releases.
+> LuaX binaries are now available at [christophe.delord.free.fr/pub](http://christophe.delord.free.fr/pub).
+
 `release` produces binary releases of:
 
 - [LuaX](https://github.com/cdsoft/luax/releases/latest)
